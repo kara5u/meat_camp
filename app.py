@@ -1,12 +1,13 @@
 # -*- coding: utf-8 -*-
 
-from flask import Flask
+from flask import Flask, make_response
 import mechanize
 import BeautifulSoup
 import json
 
 app = Flask(__name__)
 DEBUG = True
+
 
 
 def search_bot(url):
@@ -40,14 +41,14 @@ def parse(xml):
     return res
 
 @app.route('/')
-@crossdomain(origin='*')
 def get():
-    res = json.dumps(str(parse(search_bot('http://jp.techcrunch.com/feed/'))))
-    return res
+    response = make_response("%s" % json.dumps(str(parse(search_bot('http://jp.techcrunch.com/feed/')))))
+    response.headers['Access-Control-Allow-Origin'] = '*'
+    return response
 
 if __name__ == '__main__':
     #debug()
-    #app.debug = DEBUG
+    app.debug = DEBUG
     app.run()
 
 
