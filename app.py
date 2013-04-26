@@ -42,7 +42,7 @@ def parse(xml):
 @app.route('/')
 def get():
     res = json.dumps(str(parse(search_bot('http://jp.techcrunch.com/feed/'))))
-    print res
+    return res
 
 if __name__ == '__main__':
     #debug()
