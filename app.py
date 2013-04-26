@@ -4,6 +4,7 @@ from flask import Flask, make_response
 import mechanize
 import BeautifulSoup
 import json
+import sqlite3
 
 app = Flask(__name__)
 DEBUG = True
@@ -38,17 +39,27 @@ def parse(xml):
                             en_html = search_bot(a.get('href'))
         d["en"] = en_html
         res.append(d)
-    return res
+    return res 
+
+def select_db():
+    conn = sqlite3.connect("main.db")
+    c = conn.cursor()
+    c.execute("select * from feed order by pubdate desc limit 10")
+    for row in c:
+        print row[1]
+    conn.close()
 
 @app.route('/')
 def get():
-    response = make_response("%s" % json.dumps(str(parse(search_bot('http://jp.techcrunch.com/feed/')))))
+    response = make_response("%s" % json.dumps(str(parse(search_bot('http://jp.techcrunch.com/feed/'))), ensure_ascii=False))
+
     response.headers['Access-Control-Allow-Origin'] = '*'
     return response
 
 if __name__ == '__main__':
+    select_db()
     #debug()
-    app.debug = DEBUG
-    app.run()
+    #app.debug = DEBUG
+    #app.run()
 
 
