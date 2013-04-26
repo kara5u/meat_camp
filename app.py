@@ -40,6 +40,7 @@ def parse(xml):
     return res
 
 @app.route('/')
+@crossdomain(origin='*')
 def get():
     res = json.dumps(str(parse(search_bot('http://jp.techcrunch.com/feed/'))))
     return res
