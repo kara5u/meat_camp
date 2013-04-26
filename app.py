@@ -24,6 +24,7 @@ def parse(xml):
     soup.prettify()
     res = list()
     for item in soup.findAll('item'):
+        feed = dict()
         d = dict()
         print '#'
         en_html = ""
@@ -37,8 +38,9 @@ def parse(xml):
                     for a in c_soup.findAll('a'):
                         if a.string == u"原文へ":
                             en_html = search_bot(a.get('href'))
-        d["en"] = en_html
-        res.append(d)
+        feed["ja_JP"] = d
+        feed["en"] = en_html
+        res.append(feed)
     return res 
 
 def select_db():
