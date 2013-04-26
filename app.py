@@ -42,16 +42,22 @@ def parse(xml):
     return res 
 
 def select_db():
+    res = list()
     conn = sqlite3.connect("main.db")
     c = conn.cursor()
     c.execute("select * from feed order by pubdate desc limit 10")
     for row in c:
         print row[1]
+        res.append(row[1])
     conn.close()
+
+    return res
 
 @app.route('/')
 def get():
-    response = make_response("%s" % json.dumps(str(parse(search_bot('http://jp.techcrunch.com/feed/'))), ensure_ascii=False))
+    #feeds = select_db()
+
+    response = make_response(str(json.dumps(parse(search_bot("http://jp.techcrunch.com/feed/")))))
 
     response.headers['Access-Control-Allow-Origin'] = '*'
     return response
