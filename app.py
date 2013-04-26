@@ -57,9 +57,9 @@ def get():
     return response
 
 if __name__ == '__main__':
-    select_db()
+    #select_db()
     #debug()
-    #app.debug = DEBUG
-    #app.run()
+    app.debug = DEBUG
+    app.run()
 
 
