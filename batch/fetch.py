@@ -7,6 +7,7 @@ import json
 import datetime
 import re 
 import htmlentitydefs
+import unicodedata
   
 
 def search_bot(url):
@@ -38,6 +39,7 @@ def parse(xml):
                 #d[tag.name].append(tag.string)
                 if d.has_key(json_tag) == False:
                     d[json_tag] = list()
+                print type(tag.string)
                 d[json_tag].append(tag.string)
                 if tag.name == "content:encoded":
                     c_soup = BeautifulSoup.BeautifulSoup(tag.string)
@@ -47,13 +49,14 @@ def parse(xml):
                             en_html = search_bot(l)
                             url = l
                     # 日本語文もタグ除去.リストごと上書き
-                    d[json_tag] = list(translate_body(tag.string))
+                    #d[json_tag] = list(translate_ja(tag.string))
+                    print d[json_tag]
                 elif tag.name == "pubdate":
                     pub_date = datetime.datetime.strptime(
                         tag.string.replace("+0000", ""), 
                         "%a, %d %b %Y %H:%M:%S ")
         feed["ja_JP"] = d
-        t_en_html = translate_body(en_html)
+        t_en_html = translate_en(en_html)
         feed["en"] = t_en_html
         #res.append(d)
         db_insert(json.dumps(feed), url, pub_date)
@@ -61,23 +64,33 @@ def parse(xml):
     return res 
 
 
-def translate_body(html):
-    def decode_html_entity(html):
-        regex = re.compile(u'&(#x?[0-9a-f]+|[a-z]+);', re.IGNORECASE)
-        result = ''
-        i = 0
-        while True:
-            m = regex.search(html, i)
-            if m == None:
-                result += html[i:]
-                break
-            result += html[i:m.start()]
-            i = m.end()
-            name = m.group(1)
-            if name in htmlentitydefs.name2codepoint.keys():
-                result += unichr(htmlentitydefs.name2codepoint[name])
-        return result
 
+def decode_html_entity(html):
+    regex = re.compile(u'&(#x?[0-9a-f]+|[a-z]+);', re.IGNORECASE)
+    result = ''
+    i = 0
+    while True:
+        m = regex.search(html, i)
+        if m == None:
+            result += html[i:]
+            break
+        result += html[i:m.start()]
+        i = m.end()
+        name = m.group(1)
+        if name in htmlentitydefs.name2codepoint.keys():
+            result += unichr(htmlentitydefs.name2codepoint[name])
+    return result
+
+def translate_ja(html):
+    result = u''
+    result += re.sub(u'&lt;', '<', html)
+    result = re.sub(u'&gt;', '>', result)
+    result = re.sub(u'</?p>', u'\n\n', result)
+    print type(result)
+    print result.encode('utf-8')
+    return result.encode('utf-8')
+
+def translate_en(html):
     result = ''
     soup = BeautifulSoup.BeautifulSoup(html)
     soup.prettify()
@@ -90,7 +103,6 @@ def translate_body(html):
                 #result += decode_html_entity(re.sub("<[^>]*?>", "", str(elem)))
     print result
     return result
-            
 
 def db_insert(feed, url, pubdate):
     print pubdate
