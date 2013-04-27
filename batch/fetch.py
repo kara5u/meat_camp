@@ -57,7 +57,7 @@ def db_insert(feed, url, pubdate):
     c = conn.cursor()
     c.execute("select * from feed where url='%s'" % url)
     for row in c:
-        print "retrun"
+        print "abort"
         return 
     c.execute('insert into feed values (?, ?, ?)', (feed, url, pubdate))
     conn.commit()
