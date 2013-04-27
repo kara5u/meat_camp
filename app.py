@@ -50,17 +50,22 @@ def select_db():
     c.execute("select * from feed order by pubdate desc limit 10")
     for row in c:
         print row[1]
-        res.append(row[1])
+        res.append(row[0])
     conn.close()
 
     return res
 
 @app.route('/')
 def get():
-    #feeds = select_db()
+    feeds = select_db()
+    json_string = "["
+    for txt in feeds:
+        json_string += txt
+        json_string += ","
+    json_string += "]"
 
-    response = make_response(str(json.dumps(parse(search_bot("http://jp.techcrunch.com/feed/")))))
-
+    #response = make_response(str(json.dumps(parse(search_bot("http://jp.techcrunch.com/feed/")))))
+    response = make_response(json_string)
     response.headers['Access-Control-Allow-Origin'] = '*'
     return response
 
