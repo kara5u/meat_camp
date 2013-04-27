@@ -46,15 +46,14 @@ def parse(xml):
                             l = a.get('href')
                             en_html = search_bot(l)
                             url = l
+                    # 日本語文もタグ除去.リストごと上書き
+                    d[json_tag] = list(translate_body(tag.string))
                 elif tag.name == "pubdate":
                     pub_date = datetime.datetime.strptime(
                         tag.string.replace("+0000", ""), 
                         "%a, %d %b %Y %H:%M:%S ")
-                #elif tag.name == "link":
-                #    print tag.string.__str__()
-                #    url = tag.string
         feed["ja_JP"] = d
-        t_en_html = translate_en(en_html)
+        t_en_html = translate_body(en_html)
         feed["en"] = t_en_html
         #res.append(d)
         db_insert(json.dumps(feed), url, pub_date)
@@ -62,7 +61,7 @@ def parse(xml):
     return res 
 
 
-def translate_en(html):
+def translate_body(html):
     def decode_html_entity(html):
         regex = re.compile(u'&(#x?[0-9a-f]+|[a-z]+);', re.IGNORECASE)
         result = ''
@@ -85,7 +84,10 @@ def translate_en(html):
     for target in soup.findAll(id='page-container'):
         for body in target.findAll("div", {"class":"body-copy"}):
             for elem in body.findAll("p"):
-                result += decode_html_entity(re.sub("<[^>]*?>", "", str(elem)))
+                decode_p_string = re.sub("</?p>", "\n\n", str(elem))
+                remove_tag_string = re.sub("<[^>]*?>", "", decode_p_string)
+                result +=decode_html_entity(remove_tag_string)
+                #result += decode_html_entity(re.sub("<[^>]*?>", "", str(elem)))
     print result
     return result
             

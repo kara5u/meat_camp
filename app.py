@@ -9,40 +9,6 @@ import sqlite3
 app = Flask(__name__)
 DEBUG = True
 
-
-
-def search_bot(url):
-    br = mechanize.Browser()
-    br.set_handle_robots(False)
-    br.addheaders = [('User-agent', ('Mozilla/5.0 (Windows; U; Windows NT 5.1; rv:1.7.3)'' Gecko/20041001 Firefox/0.10.1'))]
-    br.open(url)
-    res = br.response().read()
-    return res
-
-def parse(xml):
-    soup = BeautifulSoup.BeautifulSoup(xml)
-    soup.prettify()
-    res = list()
-    for item in soup.findAll('item'):
-        feed = dict()
-        d = dict()
-        print '#'
-        en_html = ""
-        for tag in item:
-            if tag.__class__.__name__ == "Tag":
-                if d.has_key(tag.name) == False:
-                    d[tag.name] = list()
-                d[tag.name].append(tag.string)
-                if tag.name == "content:encoded":
-                    c_soup = BeautifulSoup.BeautifulSoup(tag.string)
-                    for a in c_soup.findAll('a'):
-                        if a.string == u"原文へ":
-                            en_html = search_bot(a.get('href'))
-        feed["ja_JP"] = d
-        feed["en"] = en_html
-        res.append(feed)
-    return res 
-
 def select_db():
     res = list()
     conn = sqlite3.connect("main.db")
@@ -58,7 +24,7 @@ def select_db():
 @app.route('/')
 def get():
     feeds = select_db()
-    json_string = "["
+    json_string = "[ "
     for txt in feeds:
         json_string += txt
         json_string += ","
