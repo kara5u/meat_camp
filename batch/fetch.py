@@ -52,8 +52,8 @@ def parse(xml):
                 #elif tag.name == "link":
                 #    print tag.string.__str__()
                 #    url = tag.string
-        translate_en(en_html)
-        d["en"] = en_html
+        t_en_html = translate_en(en_html)
+        d["en"] = t_en_html
         #res.append(d)
         db_insert(json.dumps(d), url, pub_date)
 
