@@ -5,6 +5,9 @@ import BeautifulSoup
 import sqlite3
 import json
 import datetime
+import re 
+import htmlentitydefs
+  
 
 def search_bot(url):
     br = mechanize.Browser()
@@ -49,11 +52,41 @@ def parse(xml):
                 #elif tag.name == "link":
                 #    print tag.string.__str__()
                 #    url = tag.string
+        translate_en(en_html)
         d["en"] = en_html
         #res.append(d)
         db_insert(json.dumps(d), url, pub_date)
 
-    return res
+    return res 
+
+
+def translate_en(html):
+    def decode_html_entity(html):
+        regex = re.compile(u'&(#x?[0-9a-f]+|[a-z]+);', re.IGNORECASE)
+        result = ''
+        i = 0
+        while True:
+            m = regex.search(html, i)
+            if m == None:
+                result += html[i:]
+                break
+            result += html[i:m.start()]
+            i = m.end()
+            name = m.group(1)
+            if name in htmlentitydefs.name2codepoint.keys():
+                result += unichr(htmlentitydefs.name2codepoint[name])
+        return result
+
+    result = ''
+    soup = BeautifulSoup.BeautifulSoup(html)
+    soup.prettify()
+    for target in soup.findAll(id='page-container'):
+        for body in target.findAll("div", {"class":"body-copy"}):
+            for elem in body.findAll("p"):
+                result += decode_html_entity(re.sub("<[^>]*?>", "", str(elem)))
+    print result
+    return result
+            
 
 def db_insert(feed, url, pubdate):
     print pubdate
