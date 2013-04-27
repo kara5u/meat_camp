@@ -39,8 +39,8 @@ def parse(xml):
                 #d[tag.name].append(tag.string)
                 if d.has_key(json_tag) == False:
                     d[json_tag] = list()
-                print type(tag.string)
-                d[json_tag].append(tag.string)
+                d[json_tag].append(str(tag.string))
+                #print type(tag.string)
                 if tag.name == "content:encoded":
                     c_soup = BeautifulSoup.BeautifulSoup(tag.string)
                     for a in c_soup.findAll('a'):
@@ -49,7 +49,8 @@ def parse(xml):
                             en_html = search_bot(l)
                             url = l
                     # 日本語文もタグ除去.リストごと上書き
-                    #d[json_tag] = list(translate_ja(tag.string))
+                    d[json_tag] = translate_ja(tag.string)
+                    #print tag.string
                     print d[json_tag]
                 elif tag.name == "pubdate":
                     pub_date = datetime.datetime.strptime(
@@ -66,7 +67,7 @@ def parse(xml):
 
 
 def decode_html_entity(html):
-    regex = re.compile(u'&(#x?[0-9a-f]+|[a-z]+);', re.IGNORECASE)
+    regex = re.compile('&(#x?[0-9a-f]+|[a-z]+);', re.IGNORECASE)
     result = ''
     i = 0
     while True:
@@ -82,13 +83,13 @@ def decode_html_entity(html):
     return result
 
 def translate_ja(html):
-    result = u''
-    result += re.sub(u'&lt;', '<', html)
-    result = re.sub(u'&gt;', '>', result)
-    result = re.sub(u'</?p>', u'\n\n', result)
+    print type(str(html))
+    #result = re.sub("&lt;", "<", html.string)
+    #result = re.sub("&gt;", ">", result)
+    result = re.sub("</?p>", "\n\n", html)
+    result = re.sub("<[^>]*?>", "", result)
     print type(result)
-    print result.encode('utf-8')
-    return result.encode('utf-8')
+    return result
 
 def translate_en(html):
     result = ''
@@ -101,7 +102,7 @@ def translate_en(html):
                 remove_tag_string = re.sub("<[^>]*?>", "", decode_p_string)
                 result +=decode_html_entity(remove_tag_string)
                 #result += decode_html_entity(re.sub("<[^>]*?>", "", str(elem)))
-    print result
+    #print result
     return result
 
 def db_insert(feed, url, pubdate):
