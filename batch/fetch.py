@@ -22,6 +22,7 @@ def parse(xml):
     soup.prettify()
     res = list()
     for item in soup.findAll('item'):
+        feed = dict()
         d = dict()
         #print '#'
         en_html = ""
@@ -52,10 +53,11 @@ def parse(xml):
                 #elif tag.name == "link":
                 #    print tag.string.__str__()
                 #    url = tag.string
+        feed["ja_JP"] = d
         t_en_html = translate_en(en_html)
-        d["en"] = t_en_html
+        feed["en"] = t_en_html
         #res.append(d)
-        db_insert(json.dumps(d), url, pub_date)
+        db_insert(json.dumps(feed), url, pub_date)
 
     return res 
 
