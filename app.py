@@ -62,8 +62,7 @@ def get():
     for txt in feeds:
         json_string += txt
         json_string += ","
-    if json_string[:-1] == ',':
-        json_string = json_string[:-1] + "]"
+    json_string = json_string[:-1] + "]"
     
 
     #response = make_response(str(json.dumps(parse(search_bot("http://jp.techcrunch.com/feed/")))))
