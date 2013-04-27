@@ -26,10 +26,15 @@ def parse(xml):
         url = ""
         for tag in item:
             if tag.__class__.__name__ == "Tag":
-                print tag.name.__str__()
-                if d.has_key(tag.name) == False:
-                    d[tag.name] = list()
-                d[tag.name].append(tag.string)
+                ## クライアントがkeyに":"が含まれる場合jsonをパースできないらしいので暫定的に対処．
+                ## 設計上クライアントサイドで修正するべき問題であるため今後修正するべき．
+                json_tag = tag.name.replace(":", "-")
+                #if d.has_key(tag.name) == False:
+                #    d[tag.name] = list()
+                #d[tag.name].append(tag.string)
+                if d.has_key(json_tag) == False:
+                    d[json_tag] = list()
+                d[json_tag].append(tag.string)
                 if tag.name == "content:encoded":
                     c_soup = BeautifulSoup.BeautifulSoup(tag.string)
                     for a in c_soup.findAll('a'):
